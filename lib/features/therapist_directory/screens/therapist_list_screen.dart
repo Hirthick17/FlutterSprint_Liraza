@@ -1,143 +1,225 @@
 import 'package:flutter/material.dart';
+import 'package:url_launcher/url_launcher.dart';
 import '../../../core/theme/colors.dart';
 import '../../../core/theme/text_styles.dart';
 
 class TherapistListScreen extends StatelessWidget {
   const TherapistListScreen({super.key});
 
+  final List<Map<String, dynamic>> _therapists = const [
+    {
+      'name': 'Dr. Sarah Johnson',
+      'specialty': 'Anxiety & Depression',
+      'location': 'New York, NY',
+      'rating': 4.9,
+      'googleMapLink': 'https://maps.google.com/?q=New+York,+NY',
+      'googleMeetLink': 'https://meet.google.com/abc-defg-hij',
+    },
+    {
+      'name': 'Dr. Rajesh Kumar',
+      'specialty': 'Stress Management',
+      'location': 'Mumbai, India',
+      'rating': 4.8,
+      'googleMapLink': 'https://maps.google.com/?q=Mumbai,+India',
+      'googleMeetLink': 'https://meet.google.com/klm-nopq-rst',
+    },
+    {
+      'name': 'Dr. Emily Chen',
+      'specialty': 'Relationship Counseling',
+      'location': 'San Francisco, CA',
+      'rating': 4.7,
+      'googleMapLink': 'https://maps.google.com/?q=San+Francisco,+CA',
+      'googleMeetLink': 'https://meet.google.com/uvw-xyz-123',
+    },
+    {
+      'name': 'Dr. Michael Brown',
+      'specialty': 'Trauma Therapy',
+      'location': 'London, UK',
+      'rating': 4.9,
+      'googleMapLink': 'https://maps.google.com/?q=London,+UK',
+      'googleMeetLink': 'https://meet.google.com/456-789-000',
+    },
+  ];
+
+  Future<void> _launchUrl(String url) async {
+    final Uri uri = Uri.parse(url);
+    if (!await launchUrl(uri, mode: LaunchMode.externalApplication)) {
+      throw Exception('Could not launch $url');
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: Container(
-        decoration: const BoxDecoration(
-          gradient: AppColors.primaryGradient,
-        ),
-        child: SafeArea(
-          child: Column(
-            children: [
-              Padding(
-                padding: const EdgeInsets.all(24.0),
-                child: Text(
-                  'Find a Therapist',
-                  style: AppTextStyles.h2,
-                ),
-              ),
-              Expanded(
-                child: Container(
-                  decoration: const BoxDecoration(
-                    color: AppColors.surfaceWhite,
-                    borderRadius: BorderRadius.only(
-                      topLeft: Radius.circular(30),
-                      topRight: Radius.circular(30),
-                    ),
-                  ),
-                  child: ListView(
-                    padding: const EdgeInsets.all(24),
-                    children: [
-                      _TherapistCard(
-                        name: 'Dr. Anjali Sharma',
-                        specialty: 'Anxiety, Depression',
-                        rating: 4.8,
-                        reviews: 124,
-                        distance: '2.3 km',
-                      ),
-                      _TherapistCard(
-                        name: 'Dr. Rajesh Kumar',
-                        specialty: 'Stress Management',
-                        rating: 4.9,
-                        reviews: 98,
-                        distance: '3.1 km',
-                      ),
-                      _TherapistCard(
-                        name: 'Dr. Priya Patel',
-                        specialty: 'Relationship Issues',
-                        rating: 4.7,
-                        reviews: 156,
-                        distance: '4.5 km',
-                      ),
-                    ],
-                  ),
-                ),
-              ),
-            ],
+      backgroundColor: AppColors.softWhite,
+      appBar: AppBar(
+        flexibleSpace: Container(
+          decoration: const BoxDecoration(
+            gradient: AppColors.primaryGradient,
           ),
         ),
+        title: Text(
+          'Find a Therapist',
+          style: AppTextStyles.h3.copyWith(color: Colors.white),
+        ),
+        centerTitle: true,
+        elevation: 0,
+      ),
+      body: ListView.builder(
+        padding: const EdgeInsets.all(16),
+        itemCount: _therapists.length,
+        itemBuilder: (context, index) {
+          final therapist = _therapists[index];
+          return Container(
+            margin: const EdgeInsets.only(bottom: 16),
+            padding: const EdgeInsets.all(16),
+            decoration: BoxDecoration(
+              color: Colors.white,
+              borderRadius: BorderRadius.circular(20),
+              boxShadow: [
+                BoxShadow(
+                  color: AppColors.shadowLight,
+                  blurRadius: 10,
+                  offset: const Offset(0, 4),
+                ),
+              ],
+            ),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Row(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    // Avatar
+                    Container(
+                      width: 60,
+                      height: 60,
+                      decoration: BoxDecoration(
+                        color: AppColors.softPink,
+                        shape: BoxShape.circle,
+                        border: Border.all(color: AppColors.hotPink.withOpacity(0.3), width: 2),
+                      ),
+                      child: Center(
+                         child: Text(
+                           therapist['name'][0],
+                           style: AppTextStyles.h2.copyWith(color: AppColors.hotPink),
+                         ),
+                      ),
+                    ),
+                    const SizedBox(width: 16),
+                    
+                    // Info
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(therapist['name'], style: AppTextStyles.h4),
+                          const SizedBox(height: 4),
+                          Text(
+                            therapist['specialty'],
+                            style: AppTextStyles.bodySmall.copyWith(color: AppColors.hotPink),
+                          ),
+                          const SizedBox(height: 4),
+                          Row(
+                            children: [
+                              const Icon(Icons.location_on_rounded, size: 14, color: AppColors.textSecondary),
+                              const SizedBox(width: 4),
+                              Text(
+                                therapist['location'],
+                                style: AppTextStyles.caption.copyWith(color: AppColors.textSecondary),
+                              ),
+                              const Spacer(),
+                              const Icon(Icons.star_rounded, size: 16, color: Colors.amber),
+                              Text(
+                                therapist['rating'].toString(),
+                                style: AppTextStyles.caption.copyWith(fontWeight: FontWeight.bold),
+                              ),
+                            ],
+                          ),
+                        ],
+                      ),
+                    ),
+                  ],
+                ),
+                
+                const Padding(
+                  padding: EdgeInsets.symmetric(vertical: 12),
+                  child: Divider(),
+                ),
+
+                // Action Buttons
+                Row(
+                  children: [
+                    Expanded(
+                      child: _ActionButton(
+                        icon: Icons.map_rounded,
+                        label: 'Locate',
+                        color: Colors.blue,
+                        onTap: () => _launchUrl(therapist['googleMapLink']),
+                      ),
+                    ),
+                    const SizedBox(width: 12),
+                    Expanded(
+                      child: _ActionButton(
+                        icon: Icons.video_camera_front_rounded,
+                        label: 'Connect',
+                        color: Colors.green,
+                        onTap: () => _launchUrl(therapist['googleMeetLink']),
+                      ),
+                    ),
+                  ],
+                ),
+              ],
+            ),
+          );
+        },
       ),
     );
   }
 }
 
-class _TherapistCard extends StatelessWidget {
-  final String name;
-  final String specialty;
-  final double rating;
-  final int reviews;
-  final String distance;
+class _ActionButton extends StatelessWidget {
+  final IconData icon;
+  final String label;
+  final Color color;
+  final VoidCallback onTap;
 
-  const _TherapistCard({
-    required this.name,
-    required this.specialty,
-    required this.rating,
-    required this.reviews,
-    required this.distance,
+  const _ActionButton({
+    required this.icon,
+    required this.label,
+    required this.color,
+    required this.onTap,
   });
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      margin: const EdgeInsets.only(bottom: 16),
-      padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        color: AppColors.cardBackground,
-        borderRadius: BorderRadius.circular(20),
-      ),
-      child: Row(
-        children: [
-          CircleAvatar(
-            radius: 30,
-            backgroundColor: AppColors.primaryPink,
-            child: Text(
-              name[4],
-              style: AppTextStyles.h3.copyWith(color: Colors.white),
-            ),
+    return Material(
+      color: Colors.transparent,
+      child: InkWell(
+        onTap: onTap,
+        borderRadius: BorderRadius.circular(12),
+        child: Container(
+          padding: const EdgeInsets.symmetric(vertical: 10),
+          decoration: BoxDecoration(
+            border: Border.all(color: color.withOpacity(0.5)),
+            borderRadius: BorderRadius.circular(12),
+            color: color.withOpacity(0.05),
           ),
-          const SizedBox(width: 16),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(name, style: AppTextStyles.h4),
-                const SizedBox(height: 4),
-                Text(
-                  specialty,
-                  style: AppTextStyles.bodySmall,
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Icon(icon, size: 18, color: color),
+              const SizedBox(width: 8),
+              Text(
+                label,
+                style: AppTextStyles.button.copyWith(
+                  color: color,
+                  fontSize: 14,
                 ),
-                const SizedBox(height: 8),
-                Row(
-                  children: [
-                    const Icon(Icons.star, color: Colors.amber, size: 16),
-                    const SizedBox(width: 4),
-                    Text('$rating ($reviews reviews)', style: AppTextStyles.caption),
-                    const SizedBox(width: 12),
-                    const Icon(Icons.location_on, color: AppColors.primaryPink, size: 16),
-                    const SizedBox(width: 4),
-                    Text(distance, style: AppTextStyles.caption),
-                  ],
-                ),
-              ],
-            ),
+              ),
+            ],
           ),
-          Container(
-            decoration: const BoxDecoration(
-              gradient: AppColors.primaryGradient,
-              shape: BoxShape.circle,
-            ),
-            child: IconButton(
-              onPressed: () {},
-              icon: const Icon(Icons.arrow_forward, color: Colors.white),
-            ),
-          ),
-        ],
+        ),
       ),
     );
   }

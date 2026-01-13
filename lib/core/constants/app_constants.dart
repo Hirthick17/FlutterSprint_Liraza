@@ -4,6 +4,11 @@ class AppConstants {
   static const String appName = 'LIRAZA';
   static const String appTagline = 'Your AI Companion for Emotional Wellness';
   
+  // API Keys
+  static const String geminiApiKey = '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';
+  static const String aiModel = 'google/gemini-2.0-flash-exp:free';
+
+  
   // Mood Labels
   static const List<String> moodLabels = [
     'Very Sad',
