@@ -1,81 +1,117 @@
 import 'package:flutter/material.dart';
+import '../models/dashboard_models.dart';
 import '../../../core/theme/colors.dart';
 import '../../../core/theme/text_styles.dart';
-import '../models/dashboard_models.dart';
 
 class WeeklySummaryCard extends StatelessWidget {
   final WeeklyStats stats;
 
-  const WeeklySummaryCard({super.key, required this.stats});
+  const WeeklySummaryCard({
+    super.key,
+    required this.stats,
+  });
 
   @override
   Widget build(BuildContext context) {
     return Container(
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
-        color: AppColors.cardBackground,
+        color: AppColors.surfaceWhite,
         borderRadius: BorderRadius.circular(20),
-        border: Border.all(color: AppColors.divider),
+        boxShadow: [
+          BoxShadow(
+            color: AppColors.shadowLight,
+            blurRadius: 20,
+            offset: const Offset(0, 4),
+          ),
+        ],
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text("Weekly Summary", style: AppTextStyles.h4),
-          const SizedBox(height: 16),
-          _buildStatRow(
-            icon: Icons.chat_bubble_outline_rounded,
-            label: "Chat Sessions",
-            value: stats.totalSessions.toString(),
-            color: Colors.blue,
+          Text(
+            "Weekly Summary",
+            style: AppTextStyles.h4,
           ),
-          const Divider(height: 24),
-          _buildStatRow(
-            icon: Icons.timer_outlined,
-            label: "Avg Session",
-            value: "${stats.avgDuration} min",
-            color: Colors.orange,
+          const SizedBox(height: 20),
+          Row(
+            children: [
+              _buildStatItem(
+                label: "Sessions",
+                value: stats.totalSessions.toString(),
+                icon: Icons.chat_bubble_outline_rounded,
+                color: AppColors.info,
+              ),
+              _buildDivider(),
+              _buildStatItem(
+                label: "Avg Duration",
+                value: "${stats.avgDuration}m",
+                icon: Icons.timer_outlined,
+                color: AppColors.warning,
+              ),
+            ],
           ),
-          const Divider(height: 24),
-          _buildStatRow(
-            icon: Icons.trending_up_rounded,
-            label: "Mood Improvement",
-            value: "+${stats.moodImprovement}%",
-            color: Colors.green,
-          ),
-           const Divider(height: 24),
-          _buildStatRow(
-            icon: Icons.local_fire_department_outlined,
-            label: "Current Streak",
-            value: "${stats.streak} days",
-            color: Colors.redAccent,
+          const SizedBox(height: 20),
+          Row(
+            children: [
+              _buildStatItem(
+                label: "Mood Lift",
+                value: "+${stats.moodImprovement.toStringAsFixed(0)}%",
+                icon: Icons.trending_up_rounded,
+                color: AppColors.success,
+              ),
+              _buildDivider(),
+              _buildStatItem(
+                label: "Streak",
+                value: "${stats.streak} days",
+                icon: Icons.local_fire_department_outlined,
+                color: AppColors.deepPink,
+              ),
+            ],
           ),
         ],
       ),
     );
   }
 
-  Widget _buildStatRow({
-    required IconData icon,
+  Widget _buildDivider() {
+    return Container(
+      height: 40,
+      width: 1,
+      color: AppColors.warmGray,
+      margin: const EdgeInsets.symmetric(horizontal: 16),
+    );
+  }
+
+  Widget _buildStatItem({
     required String label,
     required String value,
+    required IconData icon,
     required Color color,
   }) {
-    return Row(
-      children: [
-        Container(
-          padding: const EdgeInsets.all(8),
-          decoration: BoxDecoration(
-            color: color.withOpacity(0.1),
-            shape: BoxShape.circle,
+    return Expanded(
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              Icon(icon, size: 16, color: color),
+              const SizedBox(width: 6),
+              Text(
+                label,
+                style: AppTextStyles.caption,
+              ),
+            ],
           ),
-          child: Icon(icon, color: color, size: 20),
-        ),
-        const SizedBox(width: 16),
-        Expanded(
-          child: Text(label, style: AppTextStyles.bodyMedium),
-        ),
-        Text(value, style: AppTextStyles.h4.copyWith(fontSize: 16)),
-      ],
+          const SizedBox(height: 8),
+          Text(
+            value,
+            style: AppTextStyles.h3.copyWith(
+              color: AppColors.textPrimary,
+            ),
+          ),
+        ],
+      ),
     );
   }
 }

@@ -27,6 +27,7 @@ class AppColors {
   static const Color textOnGradient = Colors.white; // Added back for compatibility
   static const Color textHint = Color(0xFFBDBDBD);
   static const Color divider = warmGray;
+  static const Color primaryPurple = Color(0xFF9C27B0); // Added for compatibility
   static const Color shadowLight = Color(0x14FF1493); // Hot pink with low opacity
 
   // Gradients

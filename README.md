@@ -1,100 +1,58 @@
-# 🌸 LIRAZA - AI Mental Health Companion
+# LIRAZA - AI-Powered Mental Health Support App
 
-[![Flutter](https://img.shields.io/badge/Flutter-3.38.6-02569B?logo=flutter)](https://flutter.dev)
-[![License](https://img.shields.io/badge/License-MIT-green.svg)](LICENSE)
-[![Live Demo](https://img.shields.io/badge/Demo-Live-success)](https://YOUR_USERNAME.github.io/flutter_application_1/)
+<div align="center">
 
-**LIRAZA** is an AI-powered mental health support application designed to provide 24/7 emotional support, mood tracking, and personalized guidance. Built with Flutter for cross-platform compatibility.
+![LIRAZA Logo](https://img.shields.io/badge/LIRAZA-Mental%20Health-FF1493?style=for-the-badge)
+![Flutter](https://img.shields.io/badge/Flutter-3.10+-02569B?style=for-the-badge&logo=flutter)
+![Firebase](https://img.shields.io/badge/Firebase-Enabled-FFCA28?style=for-the-badge&logo=firebase)
 
-![LIRAZA Banner](assets/images/banner.png)
+**Your AI-powered companion for mental wellness**
 
-## ✨ Features
+[Download APK](#download) • [Features](#features) • [Setup](#setup) • [Contributing](#contributing)
 
-### 🤖 AI Chat Companion
-- Real-time AI conversations for emotional support
-- Empathetic responses powered by Google Gemini AI
-- 24/7 availability for mental health guidance
+</div>
 
-### 📊 Mental Health Dashboard
-- Track your mood over time
-- Visualize emotional patterns with beautiful charts
-- Get personalized insights based on your data
-- Monitor your mental health score
+---
 
-### 👨‍⚕️ Therapist Directory
-- Find licensed therapists in your area
-- Filter by specialty (Anxiety, Depression, Stress Management)
-- View ratings and reviews
-- Easy appointment booking
+## 🌟 Features
 
-### 👤 User Profile
-- Track your progress and streaks
-- View your mental health statistics
-- Manage account settings
-- Privacy controls
+- **🎯 AI Mood Tracking** - Track your emotions with intelligent insights powered by Google Gemini AI
+- **📊 Visual Analytics** - Beautiful charts showing emotional patterns and mood trends
+- **💡 Smart Habit Suggestions** - Personalized recommendations based on your mental health journey
+- **👥 Therapist Directory** - Find and connect with mental health professionals
+- **💬 AI Chat Support** - 24/7 conversational support for mental wellness
+- **📅 Habit Calendar** - Track daily habits and build consistency
 
-## 🎨 Design
+---
 
-LIRAZA features a beautiful **magenta gradient theme** with:
-- Modern Material 3 design
-- Smooth animations and transitions
-- Intuitive navigation
-- Responsive layouts for all screen sizes
+## 📱 Download
 
-## 🚀 Live Demo
+### Android APK
+**[Download Latest Release](https://github.com/YOUR_USERNAME/liraza-app/releases/latest/download/app-release.apk)**
 
-**[Try LIRAZA Now →](https://YOUR_USERNAME.github.io/flutter_application_1/)**
+### Installation Instructions
+1. Download the APK file
+2. Enable "Install from Unknown Sources" in your Android settings
+3. Open the APK file and tap "Install"
+4. Launch LIRAZA and start your mental wellness journey!
 
-## 📱 Screenshots
+---
 
-| Splash Screen | Auth Screen | Home Dashboard |
-|--------------|-------------|----------------|
-| ![Splash](screenshots/splash.png) | ![Auth](screenshots/auth.png) | ![Home](screenshots/home.png) |
-
-| AI Chat | Analytics | Profile |
-|---------|-----------|---------|
-| ![Chat](screenshots/chat.png) | ![Dashboard](screenshots/dashboard.png) | ![Profile](screenshots/profile.png) |
-
-## 🛠️ Tech Stack
-
-- **Framework:** Flutter 3.38.6
-- **Language:** Dart
-- **State Management:** Riverpod
-- **Backend:** Firebase (Auth, Firestore, Functions)
-- **AI:** Google Gemini API
-- **UI:** Material 3, Google Fonts (Poppins)
-- **Charts:** FL Chart
-- **Animations:** Lottie
-
-## 📦 Dependencies
-
-```yaml
-dependencies:
-  flutter_riverpod: ^2.6.1
-  firebase_core: ^3.6.0
-  firebase_auth: ^5.3.1
-  cloud_firestore: ^5.4.4
-  google_generative_ai: ^0.4.6
-  google_fonts: ^6.2.1
-  fl_chart: ^0.69.0
-  lottie: ^3.1.3
-```
-
-## 🏃‍♂️ Getting Started
+## 🛠️ Setup for Development
 
 ### Prerequisites
+- Flutter SDK 3.10 or higher
+- Android Studio (for Android development)
+- Xcode (for iOS development, Mac only)
+- Firebase account
+- Google Gemini API key
 
-- Flutter SDK 3.10.7 or higher
-- Dart SDK
-- Android Studio / VS Code
-- Git
-
-### Installation
+### Installation Steps
 
 1. **Clone the repository**
    ```bash
-   git clone https://github.com/YOUR_USERNAME/flutter_application_1.git
-   cd flutter_application_1
+   git clone https://github.com/YOUR_USERNAME/liraza-app.git
+   cd liraza-app
    ```
 
 2. **Install dependencies**
@@ -102,105 +60,191 @@ dependencies:
    flutter pub get
    ```
 
-3. **Run the app**
-   
-   For Web:
+3. **Configure Firebase**
+   - Create a new Firebase project at [Firebase Console](https://console.firebase.google.com/)
+   - Add Android/iOS apps to your Firebase project
+   - Download `google-services.json` (Android) and `GoogleService-Info.plist` (iOS)
+   - Place them in the appropriate directories:
+     - Android: `android/app/google-services.json`
+     - iOS: `ios/Runner/GoogleService-Info.plist`
+
+4. **Set up Gemini API**
+   - Get your API key from [Google AI Studio](https://makersuite.google.com/app/apikey)
+   - Update `lib/core/constants/app_constants.dart`:
+     ```dart
+     static const String geminiApiKey = 'YOUR_API_KEY_HERE';
+     ```
+
+5. **Run the app**
    ```bash
+   # For web
    flutter run -d chrome
-   ```
    
-   For Android:
-   ```bash
-   flutter run
-   ```
+   # For Android
+   flutter run -d android
    
-   For Windows:
-   ```bash
-   flutter run -d windows
+   # For iOS
+   flutter run -d ios
    ```
 
-## 🌐 Web Deployment
+---
 
-This app is deployed on GitHub Pages. To deploy your own version:
+## 📦 Building for Production
 
-1. **Build for web**
+### Android APK
+
+**Prerequisites:**
+- Android SDK installed
+- ANDROID_HOME environment variable set
+
+**Build command:**
+```bash
+flutter build apk --release
+```
+
+**Output:** `build/app/outputs/flutter-apk/app-release.apk`
+
+### Android App Bundle (for Play Store)
+```bash
+flutter build appbundle --release
+```
+
+### iOS (Mac only)
+```bash
+flutter build ios --release
+```
+
+### Web
+```bash
+flutter build web --release
+```
+
+**Deploy to:**
+- **Vercel**: `vercel deploy`
+- **Netlify**: Upload `build/web` folder
+- **Firebase Hosting**: `firebase deploy`
+- **GitHub Pages**: Copy `build/web` to `docs` folder
+
+---
+
+## 🚀 Deployment
+
+### GitHub Pages (Recommended for Landing Page)
+
+1. **Build the web version** (optional)
    ```bash
-   flutter build web --release --base-href "/flutter_application_1/"
+   flutter build web --release
+   cp -r build/web/* docs/
    ```
 
-2. **Deploy to GitHub Pages**
+2. **Push to GitHub**
    ```bash
-   git add build/web
-   git commit -m "Deploy to GitHub Pages"
+   git add .
+   git commit -m "Deploy landing page"
    git push origin main
    ```
 
 3. **Enable GitHub Pages**
-   - Go to repository Settings → Pages
-   - Source: Deploy from a branch
-   - Branch: main → /build/web
+   - Go to Repository Settings → Pages
+   - Source: Deploy from branch `main`
+   - Folder: `/docs`
    - Save
+
+4. **Access your site**
+   - URL: `https://YOUR_USERNAME.github.io/liraza-app/`
+
+### Creating a Release
+
+1. **Build the APK** (see above)
+
+2. **Create GitHub Release**
+   - Go to Releases → Create new release
+   - Tag: `v1.0.0`
+   - Title: `LIRAZA v1.0.0 - Initial Release`
+   - Upload `app-release.apk`
+   - Add release notes
+
+3. **Update landing page**
+   - Update download link in `docs/index.html`
+   - Replace `YOUR_USERNAME` with your GitHub username
+
+---
 
 ## 🔧 Configuration
 
 ### Firebase Setup
+Enable the following services in Firebase Console:
+- **Authentication** (Email/Password, Google Sign-In)
+- **Cloud Firestore** (for mood logs and user data)
+- **Cloud Functions** (for AI processing)
+- **Analytics** (optional)
 
-1. Create a Firebase project at [console.firebase.google.com](https://console.firebase.google.com)
-2. Add your Firebase configuration to:
-   - `lib/firebase_options.dart` (auto-generated with FlutterFire CLI)
-3. Enable Authentication and Firestore in Firebase Console
+### Environment Variables
+Update these files with your credentials:
+- `lib/core/constants/app_constants.dart` - Gemini API key
+- `android/app/google-services.json` - Firebase Android config
+- `ios/Runner/GoogleService-Info.plist` - Firebase iOS config
 
-### Google Gemini API
-
-1. Get your API key from [Google AI Studio](https://makersuite.google.com/app/apikey)
-2. Add to your environment or secure storage
+---
 
 ## 📂 Project Structure
 
 ```
 lib/
-├── main.dart                 # App entry point
 ├── core/
-│   ├── theme/               # App theme, colors, text styles
-│   └── constants/           # App constants
-└── features/
-    ├── splash/              # Splash screen
-    ├── auth/                # Authentication
-    ├── home/                # Home dashboard
-    ├── chat/                # AI chat interface
-    ├── dashboard/           # Analytics dashboard
-    ├── therapist_directory/ # Therapist listings
-    └── profile/             # User profile
+│   ├── animations/        # Reusable animations
+│   ├── constants/         # App constants and API keys
+│   ├── services/          # AI and backend services
+│   └── theme/            # Colors and text styles
+├── features/
+│   ├── chat/             # AI chat functionality
+│   ├── dashboard/        # Analytics and insights
+│   ├── habits/           # Habit tracking
+│   ├── home/             # Home screen and mood tracking
+│   ├── profile/          # User profile
+│   └── therapist_directory/  # Therapist listings
+└── main.dart             # App entry point
 ```
+
+---
 
 ## 🤝 Contributing
 
 Contributions are welcome! Please feel free to submit a Pull Request.
 
-1. Fork the project
+1. Fork the repository
 2. Create your feature branch (`git checkout -b feature/AmazingFeature`)
 3. Commit your changes (`git commit -m 'Add some AmazingFeature'`)
 4. Push to the branch (`git push origin feature/AmazingFeature`)
 5. Open a Pull Request
 
+---
+
 ## 📄 License
 
 This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
 
+---
+
 ## 🙏 Acknowledgments
 
-- Google Fonts for the beautiful Poppins font
-- Firebase for backend infrastructure
-- Google Gemini for AI capabilities
-- Flutter team for the amazing framework
+- **Google Gemini AI** - For powering intelligent mood insights
+- **Firebase** - For backend infrastructure
+- **Flutter** - For the amazing cross-platform framework
+- **fl_chart** - For beautiful data visualizations
+
+---
 
 ## 📧 Contact
 
-**Project Link:** [https://github.com/YOUR_USERNAME/flutter_application_1](https://github.com/YOUR_USERNAME/flutter_application_1)
+For questions or support, please open an issue on GitHub.
 
 ---
 
 <div align="center">
-  <p>Made with ❤️ and Flutter</p>
-  <p>© 2026 LIRAZA. All rights reserved.</p>
+
+**Made with 💖 for mental health awareness**
+
+⭐ Star this repo if you find it helpful!
+
 </div>

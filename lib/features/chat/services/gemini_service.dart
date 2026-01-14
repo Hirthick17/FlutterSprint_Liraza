@@ -1,18 +1,17 @@
 import 'dart:convert';
-import 'package:http/http.dart' as http;
+import 'package:google_generative_ai/google_generative_ai.dart';
 import '../../../core/constants/app_constants.dart';
+import '../../../core/privacy/pii_filter.dart';
 
 class GeminiService {
-  final List<Map<String, String>> _chatHistory = [];
-  
-  // OpenRouter Configuration
-  static const String _baseUrl = 'https://openrouter.ai/api/v1/chat/completions';
+  late final GenerativeModel _model;
+  late ChatSession _chat;
   
   // System prompt to guide the AI's behavior
   static const String _systemPrompt = '''
 You are LIRAZA, an empathetic and supportive AI mental health companion. 
 Your goal is to provide a safe, non-judgmental space for users to share their feelings.
-- validated their emotions
+- validate their emotions
 - ask gentle, open-ended questions
 - provide comforting support and practical coping strategies (breathing, mindfulness)
 - NEVER give medical diagnoses or prescriptions
@@ -21,70 +20,139 @@ Your goal is to provide a safe, non-judgmental space for users to share their fe
 ''';
 
   GeminiService() {
-    // Initialize history with system prompt if desired, 
-    // though OpenRouter usually handles system messages separately or as the first message.
-    _chatHistory.add({'role': 'system', 'content': _systemPrompt});
+    _initModel();
   }
 
-  Future<String> sendMessage(String message) async {
+  void _initModel() {
+    _model = GenerativeModel(
+      model: AppConstants.aiModel,
+      apiKey: AppConstants.geminiApiKey,
+      systemInstruction: Content.system(_systemPrompt),
+    );
+    _chat = _model.startChat();
+  }
+
+  Future<Map<String, dynamic>> sendMessage(String message) async {
     try {
       if (AppConstants.geminiApiKey.isEmpty || AppConstants.geminiApiKey.startsWith('YOUR_')) {
-        return "I'm having a bit of trouble connecting to my brain right now. Please check api key.";
+        return {
+          'text': "I'm having a bit of trouble connecting to my brain right now. Please check api key.",
+          'isCrisis': false,
+        };
       }
 
-      // Add user message to history
-      _chatHistory.add({'role': 'user', 'content': message});
+      // 1. Run Local Privacy & Sentiment Analysis
+      final privacyResult = PIIFilter.filterMessage(message);
+      final anonymizedMessage = privacyResult['anonymized'];
+      final emotion = PIIFilter.detectEmotion(message);
+      final sentiment = PIIFilter.calculateSentiment(message);
+      final hasPII = privacyResult['has_pii'];
 
-      // Prepare payload
-      // We limit history to last 10-20 messages to save context/tokens if needed, 
-      // but including the system prompt is important.
-      final messagesToSend = [
-        {'role': 'system', 'content': _systemPrompt},
-        ..._chatHistory.where((m) => m['role'] != 'system').toList().take(20) // naive limiting
-      ];
+      // 2. Check for Crisis (Local Fail-safe)
+      if (emotion == 'CRISIS') {
+        return {
+          'text': "I'm detecting that you might be going through a crisis. Please remember you are not alone.",
+          'isCrisis': true,
+          'sentiment': sentiment,
+        };
+      }
 
-      final response = await http.post(
-        Uri.parse(_baseUrl),
-        headers: {
-          'Authorization': 'Bearer ${AppConstants.geminiApiKey}',
-          'Content-Type': 'application/json',
-          'HTTP-Referer': 'https://github.com/Hirthick17/FlutterSprint_Liraza', // Optional
-          'X-Title': 'Liraza Mental Health App', // Optional
-        },
-        body: jsonEncode({
-          'model': AppConstants.aiModel,
-          'messages': messagesToSend,
-          // Optional parameters
-          'temperature': 0.7,
-          'top_p': 0.9,
-          'max_tokens': 500,
-        }),
-      );
+      // 3. Construct Context-Aware Prompt
+      final contextPrompt = '''
+[SYSTEM_CONTEXT]
+Detected Emotion: $emotion
+Sentiment Score: $sentiment (-5 to +5)
+Has PII Redacted: $hasPII
 
-      if (response.statusCode == 200) {
-        final data = jsonDecode(response.body);
-        if (data['choices'] != null && data['choices'].isNotEmpty) {
-          final content = data['choices'][0]['message']['content'];
-          
-          // Add AI response to history
-          _chatHistory.add({'role': 'assistant', 'content': content});
-          
-          return content;
-        } else {
-          return "I'm not sure what to say. Could you try again?";
-        }
+[USER_MESSAGE]
+$anonymizedMessage
+
+[INSTRUCTION]
+Respond to the user message with empathy matching their detected emotion. 
+If PII was redacted (placeholder like [PERSON]), do not mention the redaction, just flow naturally.
+Keep response concise and supportive.
+''';
+
+      // 4. Send to Gemini
+      final content = Content.text(contextPrompt);
+      final response = await _chat.sendMessage(content);
+      
+      final responseText = response.text;
+      
+      if (responseText != null && responseText.isNotEmpty) {
+        return {
+          'text': responseText,
+          'isCrisis': false,
+          'emotion': emotion,
+          'sentiment': sentiment,
+        };
       } else {
-        print('OpenRouter API Error: ${response.statusCode} - ${response.body}');
-        return "I'm having trouble connecting (Error ${response.statusCode}). Please try again.";
+         return {
+          'text': "I'm not sure what to say. Could you try again?",
+          'isCrisis': false,
+        };
       }
     } catch (e) {
-      print('Network Error: $e');
-      return "I'm unable to reach the server right now. Please check your internet connection.";
+      print('Gemini API Error: $e');
+      String errorMsg = "I'm having trouble connecting right now. Please try again.";
+      
+      if (e.toString().contains('User location is not supported')) {
+         errorMsg = "It looks like I'm unable to access the AI service in your current location.";
+      } else if (e.toString().contains('404') || e.toString().contains('not found')) {
+        errorMsg = "I'm having trouble connecting to the AI model. Please check API Key.";
+      }
+      
+      return {
+        'text': errorMsg,
+        'isCrisis': false,
+      };
     }
   }
 
   void clearHistory() {
-    _chatHistory.clear();
-    _chatHistory.add({'role': 'system', 'content': _systemPrompt});
+    // To clear history, we simply start a new chat session
+    _chat = _model.startChat();
+  }
+
+  /// Generate habit suggestions based on user's emotional patterns
+  Future<List<Map<String, String>>> generateHabitSuggestions({
+    required String dominantEmotion,
+    required List<String> recentMoods,
+  }) async {
+    final prompt = '''
+Based on a user experiencing primarily "$dominantEmotion" emotions, suggest 5 daily habits to improve mental wellbeing.
+
+Recent mood pattern: ${recentMoods.join(', ')}
+
+Return ONLY a JSON array with this exact format:
+[
+  {"habit": "Morning gratitude journaling", "time": "08:00", "frequency": "daily", "benefit": "Increases positive thinking"},
+  ...
+]
+
+Keep habits realistic, science-backed, and actionable.
+''';
+    
+    try {
+      final response = await _model.generateContent([Content.text(prompt)]);
+      final text = response.text ?? '[]';
+      
+      // Extract JSON from response (handle markdown fences)
+      final jsonStr = text
+          .replaceAll('```json', '')
+          .replaceAll('```', '')
+          .trim();
+      
+      final List<dynamic> habits = jsonDecode(jsonStr);
+      return habits.map((h) => Map<String, String>.from(h)).toList();
+    } catch (e) {
+      print('GenHabit Error: $e');
+      // Fallback habits
+      return [
+        {'habit': 'Morning meditation', 'time': '07:00', 'frequency': 'daily', 'benefit': 'Reduces stress'},
+        {'habit': 'Evening walk', 'time': '18:00', 'frequency': 'daily', 'benefit': 'Improves mood'},
+        {'habit': 'Hydration goal', 'time': '10:00', 'frequency': 'daily', 'benefit': 'Physical wellbeing'},
+      ];
+    }
   }
 }

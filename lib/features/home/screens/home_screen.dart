@@ -1,11 +1,15 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../core/theme/colors.dart';
 import '../../../core/theme/text_styles.dart';
 import '../../../core/constants/app_constants.dart';
+import '../../../core/animations/fade_in_up.dart';
 import '../../chat/screens/chat_screen.dart';
 import '../../dashboard/screens/dashboard_screen.dart';
 import '../../therapist_directory/screens/therapist_list_screen.dart';
 import '../../profile/screens/profile_screen.dart';
+import '../../dashboard/screens/habits_screen.dart';
+import '../providers/mood_provider.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -20,6 +24,7 @@ class _HomeScreenState extends State<HomeScreen> {
   final List<Widget> _screens = [
     const HomeTab(),
     const DashboardScreen(),
+    const HabitsScreen(), // New Habits Tab
     const TherapistListScreen(),
     const ProfileScreen(),
   ];
@@ -59,6 +64,10 @@ class _HomeScreenState extends State<HomeScreen> {
               label: 'Dashboard',
             ),
             BottomNavigationBarItem(
+              icon: Icon(Icons.calendar_month_rounded), // Calendar Icon
+              label: 'Habits',
+            ),
+            BottomNavigationBarItem(
               icon: Icon(Icons.people_rounded),
               label: 'Therapists',
             ),
@@ -73,11 +82,12 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 }
 
-class HomeTab extends StatelessWidget {
+class HomeTab extends ConsumerWidget {
   const HomeTab({super.key});
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
+    final moodState = ref.watch(moodProvider);
     return Scaffold(
       backgroundColor: AppColors.softWhite,
       body: SingleChildScrollView(
@@ -143,11 +153,36 @@ class HomeTab extends StatelessWidget {
                     child: Row(
                       mainAxisAlignment: MainAxisAlignment.spaceAround,
                       children: [
-                        _MoodEmoji(emoji: '😢', label: 'Sad'),
-                        _MoodEmoji(emoji: '😔', label: 'Low'),
-                        _MoodEmoji(emoji: '😐', label: 'Okay'),
-                        _MoodEmoji(emoji: '🙂', label: 'Good'),
-                        _MoodEmoji(emoji: '😊', label: 'Happy'),
+                        _MoodEmoji(
+                          emoji: '😢',
+                          label: 'Sad',
+                          isSelected: moodState.selectedMood == 'Sad',
+                          onTap: () => ref.read(moodProvider.notifier).logMood('Sad'),
+                        ),
+                        _MoodEmoji(
+                          emoji: '😔',
+                          label: 'Low',
+                          isSelected: moodState.selectedMood == 'Low',
+                          onTap: () => ref.read(moodProvider.notifier).logMood('Low'),
+                        ),
+                        _MoodEmoji(
+                          emoji: '😐',
+                          label: 'Okay',
+                          isSelected: moodState.selectedMood == 'Okay',
+                          onTap: () => ref.read(moodProvider.notifier).logMood('Okay'),
+                        ),
+                        _MoodEmoji(
+                          emoji: '🙂',
+                          label: 'Good',
+                          isSelected: moodState.selectedMood == 'Good',
+                          onTap: () => ref.read(moodProvider.notifier).logMood('Good'),
+                        ),
+                        _MoodEmoji(
+                          emoji: '😊',
+                          label: 'Happy',
+                          isSelected: moodState.selectedMood == 'Happy',
+                          onTap: () => ref.read(moodProvider.notifier).logMood('Happy'),
+                        ),
                       ],
                     ),
                   ),
@@ -161,9 +196,14 @@ class HomeTab extends StatelessWidget {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   // Today's Insight
-                  Text('Today\'s Insight', style: AppTextStyles.h3),
+                  FadeInUp(
+                    delay: const Duration(milliseconds: 100),
+                    child: Text('Today\'s Insight', style: AppTextStyles.h3),
+                  ),
                   const SizedBox(height: 16),
-                  Container(
+                  FadeInUp(
+                    delay: const Duration(milliseconds: 200),
+                    child: Container(
                     padding: const EdgeInsets.all(20),
                     decoration: BoxDecoration(
                       color: Colors.white,
@@ -200,13 +240,19 @@ class HomeTab extends StatelessWidget {
                       ],
                     ),
                   ),
+                  ),
 
                   const SizedBox(height: 24),
 
                   // Quick Actions Grid
-                  Text('Quick Actions', style: AppTextStyles.h3),
+                  FadeInUp(
+                    delay: const Duration(milliseconds: 300),
+                    child: Text('Quick Actions', style: AppTextStyles.h3),
+                  ),
                   const SizedBox(height: 16),
-                  GridView.count(
+                  FadeInUp(
+                    delay: const Duration(milliseconds: 400),
+                    child: GridView.count(
                     shrinkWrap: true,
                     physics: const NeverScrollableScrollPhysics(),
                     crossAxisCount: 2,
@@ -249,7 +295,7 @@ class HomeTab extends StatelessWidget {
                           final homeScreenState = context.findAncestorStateOfType<_HomeScreenState>();
                           if (homeScreenState != null) {
                             homeScreenState.setState(() {
-                              homeScreenState._currentIndex = 2; // Therapist Tab
+                              homeScreenState._currentIndex = 3; // Therapist Tab (fixed from 2)
                             });
                           }
                         },
@@ -263,36 +309,46 @@ class HomeTab extends StatelessWidget {
                       ),
                     ],
                   ),
+                  ),
 
                   const SizedBox(height: 24),
 
                   // Recent Activity Header
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Text('Recent Activity', style: AppTextStyles.h3),
-                      TextButton(
-                        onPressed: () {},
-                        child: const Text('View All', style: TextStyle(color: AppColors.hotPink)),
-                      ),
-                    ],
+                  FadeInUp(
+                    delay: const Duration(milliseconds: 500),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Text('Recent Activity', style: AppTextStyles.h3),
+                        TextButton(
+                          onPressed: () {},
+                          child: const Text('View All', style: TextStyle(color: AppColors.hotPink)),
+                        ),
+                      ],
+                    ),
                   ),
                   
                   // Activity Items
-                  const _ActivityCard(
-                    title: 'Chat Session',
-                    subtitle: 'Feeling anxious about work',
-                    time: '2 hours ago',
-                    icon: Icons.chat,
-                    color: Colors.blue,
+                  FadeInUp(
+                    delay: const Duration(milliseconds: 600),
+                    child: const _ActivityCard(
+                      title: 'Chat Session',
+                      subtitle: 'Feeling anxious about work',
+                      time: '2 hours ago',
+                      icon: Icons.chat,
+                      color: Colors.blue,
+                    ),
                   ),
                   const SizedBox(height: 12),
-                  const _ActivityCard(
-                    title: 'Mood Log: Happy',
-                    subtitle: 'Great progress w/ project',
-                    time: 'Yesterday',
-                    icon: Icons.mood,
-                    color: Colors.green,
+                  FadeInUp(
+                    delay: const Duration(milliseconds: 700),
+                    child: const _ActivityCard(
+                      title: 'Mood Log: Happy',
+                      subtitle: 'Great progress w/ project',
+                      time: 'Yesterday',
+                      icon: Icons.mood,
+                      color: Colors.green,
+                    ),
                   ),
                   const SizedBox(height: 40),
                 ],
@@ -315,20 +371,51 @@ class HomeTab extends StatelessWidget {
 class _MoodEmoji extends StatelessWidget {
   final String emoji;
   final String label;
+  final bool isSelected;
+  final VoidCallback onTap;
 
-  const _MoodEmoji({required this.emoji, required this.label});
+  const _MoodEmoji({
+    required this.emoji,
+    required this.label,
+    this.isSelected = false,
+    required this.onTap,
+  });
 
   @override
   Widget build(BuildContext context) {
-    return Column(
-      children: [
-        Text(emoji, style: const TextStyle(fontSize: 28)),
-        const SizedBox(height: 4),
-        Text(
-          label, 
-          style: const TextStyle(color: Colors.white, fontSize: 10, fontWeight: FontWeight.w500),
+    return GestureDetector(
+      onTap: onTap,
+      child: AnimatedContainer(
+        duration: const Duration(milliseconds: 200),
+        padding: const EdgeInsets.all(8),
+        decoration: BoxDecoration(
+          color: isSelected ? Colors.white.withOpacity(0.3) : Colors.transparent,
+          borderRadius: BorderRadius.circular(12),
+          border: Border.all(
+            color: isSelected ? Colors.white : Colors.transparent,
+            width: 2,
+          ),
         ),
-      ],
+        child: Column(
+          children: [
+            Text(
+              emoji,
+              style: TextStyle(
+                fontSize: isSelected ? 32 : 28,
+              ),
+            ),
+            const SizedBox(height: 4),
+            Text(
+              label,
+              style: TextStyle(
+                color: Colors.white,
+                fontSize: 10,
+                fontWeight: isSelected ? FontWeight.bold : FontWeight.w500,
+              ),
+            ),
+          ],
+        ),
+      ),
     );
   }
 }

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import '../../../core/theme/colors.dart';
 import '../../../core/theme/text_styles.dart';
 import '../services/gemini_service.dart';
+import '../widgets/crisis_overlay.dart';
 
 class ChatScreen extends StatefulWidget {
   const ChatScreen({super.key});
@@ -67,18 +68,24 @@ class _ChatScreenState extends State<ChatScreen> {
     _scrollToBottom();
 
     try {
-      final response = await _geminiService.sendMessage(messageText);
+      final responseMap = await _geminiService.sendMessage(messageText);
+      final responseText = responseMap['text'];
+      final isCrisis = responseMap['isCrisis'] == true;
 
       if (mounted) {
         setState(() {
           _isTyping = false;
           _messages.add({
             'sender': 'ai',
-            'message': response,
+            'message': responseText,
             'time': _formatTime(),
           });
         });
         _scrollToBottom();
+
+        if (isCrisis) {
+          _showCrisisOverlay();
+        }
       }
     } catch (e) {
       if (mounted) {
@@ -99,6 +106,19 @@ class _ChatScreenState extends State<ChatScreen> {
     final now = TimeOfDay.now();
     final context = this.context;
     return now.format(context);
+  }
+
+  void _showCrisisOverlay() {
+    Navigator.of(context).push(
+      MaterialPageRoute(
+        builder: (context) => Scaffold(
+          body: CrisisOverlay(
+            onDismiss: () => Navigator.of(context).pop(),
+          ),
+        ),
+        fullscreenDialog: true,
+      ),
+    );
   }
 
   @override
@@ -258,52 +278,76 @@ class _ChatScreenState extends State<ChatScreen> {
 
               const SizedBox(height: 8),
 
-              // Input Area
+              // Input Area (Redesigned)
               Container(
-                padding: const EdgeInsets.all(16),
-                decoration: BoxDecoration(
-                  color: Colors.white,
-                  boxShadow: [
-                    BoxShadow(
-                      color: AppColors.shadowLight,
-                      blurRadius: 10,
-                      offset: const Offset(0, -2),
-                    ),
-                  ],
-                ),
+                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                color: AppColors.softPink.withOpacity(0.3), // Light pink background
                 child: Row(
                   children: [
-                    IconButton(
-                      onPressed: () {}, 
-                      icon: const Icon(Icons.add, color: AppColors.hotPink),
-                    ),
-                    Expanded(
-                      child: TextField(
-                        controller: _messageController,
-                        decoration: InputDecoration(
-                          hintText: 'Type a message...',
-                          hintStyle: TextStyle(color: AppColors.textHint),
-                          filled: true,
-                          fillColor: AppColors.lightGray,
-                          border: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(25),
-                            borderSide: BorderSide.none,
-                          ),
-                          contentPadding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
-                        ),
-                        minLines: 1,
-                        maxLines: 4,
-                        textCapitalization: TextCapitalization.sentences,
-                        onSubmitted: (_) => _sendMessage(),
+                    // Mood/Emoji Button
+                    Container(
+                      decoration: const BoxDecoration(
+                        color: AppColors.hotPink,
+                        shape: BoxShape.circle,
+                      ),
+                      child: IconButton(
+                        onPressed: () {},
+                        icon: const Icon(Icons.sentiment_satisfied_alt_outlined, color: Colors.white),
+                        padding: EdgeInsets.zero,
+                        constraints: const BoxConstraints(minWidth: 44, minHeight: 44),
                       ),
                     ),
                     const SizedBox(width: 8),
+                    
+                    // Voice Button
+                    Container(
+                      decoration: const BoxDecoration(
+                        color: AppColors.hotPink,
+                        shape: BoxShape.circle,
+                      ),
+                      child: IconButton(
+                        onPressed: () {},
+                        icon: const Icon(Icons.mic_none_outlined, color: Colors.white),
+                        padding: EdgeInsets.zero,
+                        constraints: const BoxConstraints(minWidth: 44, minHeight: 44),
+                      ),
+                    ),
+                    const SizedBox(width: 12),
+
+                    // Text Input
+                    Expanded(
+                      child: Container(
+                        decoration: BoxDecoration(
+                          color: Colors.white,
+                          borderRadius: BorderRadius.circular(30),
+                          border: Border.all(color: AppColors.softPink, width: 2),
+                        ),
+                        child: TextField(
+                          controller: _messageController,
+                          decoration: InputDecoration(
+                            hintText: 'You can write or say whatever feels heavy...',
+                            hintStyle: TextStyle(color: AppColors.hotPink.withOpacity(0.5)),
+                            border: InputBorder.none,
+                            contentPadding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+                          ),
+                          style: const TextStyle(color: AppColors.textPrimary),
+                          minLines: 1,
+                          maxLines: 4,
+                          textCapitalization: TextCapitalization.sentences,
+                          onSubmitted: (_) => _sendMessage(),
+                        ),
+                      ),
+                    ),
+                    const SizedBox(width: 12),
+                    
+                    // Send Button
                     GestureDetector(
                       onTap: () => _sendMessage(),
                       child: Container(
-                        padding: const EdgeInsets.all(12),
+                        width: 44,
+                        height: 44,
                         decoration: const BoxDecoration(
-                          gradient: AppColors.primaryGradient,
+                          color: AppColors.hotPink,
                           shape: BoxShape.circle,
                         ),
                         child: const Icon(Icons.send_rounded, color: Colors.white, size: 20),

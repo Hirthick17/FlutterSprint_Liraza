@@ -15,48 +15,60 @@ class PositiveMessageBanner extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      width: double.infinity,
-      padding: const EdgeInsets.all(20),
+      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
       decoration: BoxDecoration(
-        gradient: AppColors.primaryGradient,
+        gradient: AppColors.softGradient,
         borderRadius: BorderRadius.circular(20),
         boxShadow: [
           BoxShadow(
-            color: AppColors.primaryPink.withOpacity(0.3),
+            color: AppColors.shadowLight,
             blurRadius: 10,
             offset: const Offset(0, 4),
           ),
         ],
       ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
+      child: Row(
         children: [
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Text(
-                '💜 Today\'s Positive Message',
-                style: AppTextStyles.label.copyWith(
-                  color: Colors.white.withOpacity(0.9),
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
-              IconButton(
-                icon: const Icon(Icons.refresh, color: Colors.white, size: 20),
-                onPressed: onRefresh,
-                padding: EdgeInsets.zero,
-                constraints: const BoxConstraints(),
-              ),
-            ],
-          ),
-          const SizedBox(height: 12),
-          Text(
-            message,
-            style: AppTextStyles.h4.copyWith(
-              color: Colors.white,
-              fontWeight: FontWeight.w600,
-              height: 1.3,
+          Container(
+            padding: const EdgeInsets.all(10),
+            decoration: BoxDecoration(
+              color: AppColors.pureWhite,
+              shape: BoxShape.circle,
             ),
+            child: const Icon(
+              Icons.wb_sunny_rounded,
+              color: AppColors.warning, // Sunny/Attention color
+              size: 24,
+            ),
+          ),
+          const SizedBox(width: 16),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  "Daily Inspiration",
+                  style: AppTextStyles.caption.copyWith(
+                    color: AppColors.textSecondary,
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
+                const SizedBox(height: 4),
+                Text(
+                  message.isNotEmpty ? message : "You are doing great today!",
+                  style: AppTextStyles.bodyLarge.copyWith(
+                    fontWeight: FontWeight.w500,
+                    color: AppColors.textPrimary,
+                  ),
+                ),
+              ],
+            ),
+          ),
+          IconButton(
+            onPressed: onRefresh,
+            icon: const Icon(Icons.refresh_rounded),
+            color: AppColors.textSecondary,
+            tooltip: "New Message",
           ),
         ],
       ),
