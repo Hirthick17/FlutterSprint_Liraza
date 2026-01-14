@@ -5,7 +5,13 @@ class AppConstants {
   static const String appTagline = 'Your AI Companion for Emotional Wellness';
   
   // API Keys
-  static const String geminiApiKey = 'AIzaSyCp9KbNf8s_S11v0ceKSMoQuM1cL5GnviE';
+  // IMPORTANT: For production, use environment variables
+  // For now, this is hardcoded but should be moved to .env file
+  // When deploying to Vercel, set this as an environment variable in Vercel dashboard
+  static const String geminiApiKey = String.fromEnvironment(
+    'GEMINI_API_KEY',
+    defaultValue: 'AIzaSyCp9KbNf8s_S11v0ceKSMoQuM1cL5GnviE', // Fallback for development
+  );
   static const String aiModel = 'gemini-2.5-flash';
 
   
