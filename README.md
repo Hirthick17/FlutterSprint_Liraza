@@ -7,6 +7,8 @@
 ![Firebase](https://img.shields.io/badge/Firebase-Enabled-FFCA28?style=for-the-badge&logo=firebase)
 
 **Your AI-powered companion for mental wellness**
+**Built at Flutter Sprint Hackathon conducted by Google Developer Groups 
+This project made into Top 40 teams among 200 participations**
 
 </div>
 
