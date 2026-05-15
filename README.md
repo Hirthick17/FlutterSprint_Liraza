@@ -10,7 +10,6 @@
 
 </div>
 
-# LIRAZA - AI-Powered Mental Health Support App
 
 ## Description
 
